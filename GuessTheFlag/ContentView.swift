@@ -16,6 +16,7 @@ struct ContentView: View {
     @State private var showingProgress = false
     @State private var scoreTitle = ""
     @State private var message = ""
+    @State private var animate = false
 
     var body: some View {
         ZStack {
@@ -35,10 +36,21 @@ struct ContentView: View {
 
                 ForEach(0 ..< 3) { number in
                     Button(action: {
+                        if number == self.correctAnswer   {
+                        withAnimation(.interpolatingSpring(stiffness: 5, damping: 1)) {
+                            self.animate = true
+                        }
+                        }
                         self.flagTapped(number)
+                         self.animate = true
                     }) {
                         Image(self.countries[number]).renderingMode(.original).clipShape(Capsule()).overlay(Capsule().stroke(Color.black, lineWidth: 1.0)).shadow(color: .black, radius: 2.0)
+//                            withAnimation(.interpolatingSpring(stiffness: 5, damping: 1)) {
+//                                self.animationAmount += 360
+//                            }
                     }
+                    .rotation3DEffect(.degrees(number == self.correctAnswer && self.animate ? 360 : 0), axis: (x: 1, y: 0, z: 0))
+                     .opacity(number != self.correctAnswer  && self.animate ? 0.25 : 1)
                 }
                 Spacer()
             }
@@ -62,6 +74,7 @@ struct ContentView: View {
         showingProgress = true
     }
     func askQuestion() {
+        animate = false
         countries.shuffle()
         correctAnswer = Int.random(in: 0 ... 2)
     }
